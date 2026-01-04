@@ -1,6 +1,8 @@
+require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
+const Person = require('./models/person')
 
 app.use(express.static('dist'))
 app.use(express.json())
@@ -39,30 +41,23 @@ let persons=[
     }
 ]
 
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(p => Number(p.id)))
-    : 0
-  return String(maxId + 1)
-}
-
 app.get('/api/persons', (request, response) => {
-  response.json(persons)
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 app.get('/api/info', (request, response) => {
-  response.send(`<p>Phonebook has info of ${persons.length} people</p>
-    <p>${new Date()}</p>`)
+  Person.countDocuments({}).then(count => {
+    response.send(`<p>Phonebook has info of ${count} people</p>
+      <p>${new Date()}</p>`)
+  })
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  const person = persons.find(person => person.id === id)
-  if(person){
+  Person.findById(request.params.id).then(person => {
     response.json(person)
-  }else{
-    response.status(404).json({ error: 'person not found' })
-  } 
+  })
 })
 
 app.delete('/api/persons/:id', (request, response) => {
@@ -79,25 +74,17 @@ app.post('/api/persons', (request, response) => {
       error: 'name or number missing'
     })
   }
-  let names=persons.map(person=>person.name)
-
-  if(names.includes(body.name)){
-    return response.status(400).json({
-      error: 'name already in database'
-    })
-  }
-  const person = {
-    name: body.name,
-    number: body.number,
-    id: generateId(),
-  }
-
-  persons = persons.concat(person)
-  response.json(person)
+  const person = new Person({
+    name:body.name,
+    number:body.number
+  })
+  person.save().then(savedPerson=>{
+    response.json(savedPerson)
+  })
 })
 
 
-const PORT = 3001
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
