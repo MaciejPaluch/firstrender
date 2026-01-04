@@ -1,0 +1,4 @@
+node_modules
+phonebook/node_modules
+phonebook/dist
+.env
