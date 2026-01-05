@@ -3,7 +3,8 @@ const express = require('express')
 const morgan = require('morgan')
 const app = express()
 const Person = require('./models/person')
-
+console.log('cwd', process.cwd())
+console.log('__dirname', __dirname)
 const requestLogger = (request, response, next) => {
   console.log(request.method)
   console.log(request.path)
