@@ -5,6 +5,17 @@ const app = express()
 const Person = require('./models/person')
 console.log('cwd', process.cwd())
 console.log('__dirname', __dirname)
+const fs = require('fs')
+const path = require('path')
+
+console.log('dist exists', fs.existsSync(path.join(__dirname, 'dist')))
+console.log('assets exists', fs.existsSync(path.join(__dirname, 'dist', 'assets')))
+
+if (fs.existsSync(path.join(__dirname, 'dist', 'assets'))) {
+  console.log('assets files', fs.readdirSync(path.join(__dirname, 'dist', 'assets')).slice(0, 10))
+}
+
+
 const requestLogger = (request, response, next) => {
   console.log(request.method)
   console.log(request.path)
@@ -13,7 +24,6 @@ const requestLogger = (request, response, next) => {
   next()
 }
 
-const path = require('path')
 
 app.use(express.static(path.join(__dirname, 'dist')))
 app.use(express.json())
@@ -97,7 +107,7 @@ app.put('/api/persons/:id', (request, response, next) =>{
 })
 
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
