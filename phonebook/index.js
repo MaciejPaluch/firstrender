@@ -12,7 +12,9 @@ const requestLogger = (request, response, next) => {
   next()
 }
 
-app.use(express.static('dist'))
+const path = require('path')
+
+app.use(express.static(path.join(__dirname, 'dist')))
 app.use(express.json())
 app.use(requestLogger)
 app.use(morgan((tokens, req, res) => {
